@@ -1,0 +1,6 @@
+# Get your free `AQICN_TOKEN` by registering at https://aqicn.org/data-platform/token.
+AQICN_TOKEN = "pandapandapandapandapandapandapandapanda"
+
+# Find your current location's `LATITUDE` and `LONGITUDE` in decimal degrees using https://gps-coordinates.net.
+LATITUDE = 1.289154
+LONGITUDE = 103.850486
