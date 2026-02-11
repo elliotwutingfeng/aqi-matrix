@@ -14,12 +14,38 @@
 // Maximum is 255. Set to low value to prevent excessive current draw
 #define BRIGHTNESS 8
 
-// Full matrix width and height
-#define mw 16
-#define mh 16
+// Size of each tile (matrix) in pixels
+#define MATRIX_WIDTH 16
+#define MATRIX_HEIGHT 16
 
-Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(16, mh,
-                                                    mw / 16, mh / 16,
+// Number of tiles in horizontal and vertical direction
+#define TILE_WIDTH 1
+#define TILE_HEIGHT 1
+
+/*
+For a 16x16 display made of 4 8x8 matrices arranged like this:
+
++---+---+
+| 0 | 1 |
++---+---+
+| 3 | 2 |
++---+---+
+
+# define MATRIX_WIDTH 8
+# define MATRIX_HEIGHT 8
+# define TILE_WIDTH 2
+# define TILE_HEIGHT 2
+
+*/
+
+// Full display width and height
+#define mw (MATRIX_WIDTH * TILE_WIDTH)
+#define mh (MATRIX_HEIGHT * TILE_HEIGHT)
+
+
+
+Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(MATRIX_WIDTH, MATRIX_HEIGHT,
+                                                    TILE_WIDTH, TILE_HEIGHT,
                                                     PIN,
                                                     NEO_MATRIX_TOP
                                                       + NEO_MATRIX_RIGHT
@@ -173,7 +199,7 @@ const AQILevel aqi_levels[] = {
 	{ 101, 150, "UNHEALTHY_FOR_SENSITIVE_GROUPS" },  // orange
 	{ 151, 200, "UNHEALTHY" },                       // red
 	{ 201, 300, "VERY_UNHEALTHY" },                  // purple
-	{ 301, 99999, "HAZARDOUS" }                      // maroon
+	{ 301, 99999, "HAZARDOUS" }                      // blue
 };
 
 const int NUM_LEVELS = sizeof(aqi_levels) / sizeof(aqi_levels[0]);
