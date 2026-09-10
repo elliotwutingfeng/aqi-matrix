@@ -3,11 +3,11 @@
 import json
 import logging
 import pathlib
-import serial
 import time
-import tomllib
 import urllib.request
 
+import serial
+import tomllib
 from serial.tools import list_ports
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def main():
     try:
         with open(pathlib.Path(__file__).parent / "config.toml", "rb") as f:
             config = tomllib.load(f)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to load config.toml | %s", e)
         return
 
@@ -63,7 +63,7 @@ def main():
     except ValueError as e:
         logger.error("Invalid AQI data received | %s", e)
         aqi_value = -5
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to fetch or process AQI data | %s", e)
         aqi_value = -2
 
@@ -96,7 +96,7 @@ def main():
             ser.flush()
         logger.info("AQI value sent to serial output.")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to send AQI data to Arduino | %s", e)
 
 
