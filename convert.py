@@ -64,5 +64,7 @@ if __name__ == "__main__":
     ]
     for filename in piskel_filenames:
         input_path = pathlib.Path(__file__).parent / "aqi-matrix" / filename
-        output_path = pathlib.Path(__file__).parent / "aqi-matrix" / (filename[:-2] + ".h")
+        output_path = (
+            pathlib.Path(__file__).parent / "aqi-matrix" / (filename[:-2] + ".h")
+        )
         convert_c_file(input_path, output_path)

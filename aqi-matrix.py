@@ -2,6 +2,7 @@
 
 import json
 import logging
+import math
 import pathlib
 import time
 import urllib.request
@@ -29,6 +30,7 @@ def main():
     AQICN_TOKEN = config.get("AQICN_TOKEN")
     LATITUDE = config.get("LATITUDE")
     LONGITUDE = config.get("LONGITUDE")
+    MAX_SEARCH_RADIUS_KM = config.get("MAX_SEARCH_RADIUS_KM")
 
     if not (
         AQICN_TOKEN
@@ -43,32 +45,68 @@ def main():
         )
         return
 
+    station_name = "UNKNOWN"
     aqi_value = -2
+    search_radius_km = 10
+    while search_radius_km < MAX_SEARCH_RADIUS_KM:
+        # lat1 lng1 is northwest corner
+        # lat2 lng2 is southeast corner
 
-    try:
-        with urllib.request.urlopen(
-            f"https://api.waqi.info/feed/geo:{LATITUDE};{LONGITUDE}/?token={AQICN_TOKEN}",
-            timeout=30,
-        ) as f:
-            aqi = json.load(f).get("data", {}).get("aqi", None)
-            aqi_value = int(aqi)
-            if aqi_value < 0:
-                raise ValueError("AQI value cannot be negative")
-    except (json.JSONDecodeError, AttributeError) as e:
-        logger.error("Failed to parse AQI data | %s", e)
-        aqi_value = -3
-    except TypeError as e:
-        logger.error("AQI data is of wrong type | %s", e)
-        aqi_value = -4
-    except ValueError as e:
-        logger.error("Invalid AQI data received | %s", e)
-        aqi_value = -5
-    except Exception as e:  # noqa: BLE001
-        logger.error("Failed to fetch or process AQI data | %s", e)
-        aqi_value = -2
+        # Approximate conversion from km to degrees
+        lat1 = LATITUDE + search_radius_km / 111
+        lng1 = LONGITUDE - search_radius_km / (
+            111 * abs(math.cos(math.radians(LATITUDE)))
+        )
+        lat2 = LATITUDE - search_radius_km / 111
+        lng2 = LONGITUDE + search_radius_km / (
+            111 * abs(math.cos(math.radians(LATITUDE)))
+        )
+
+        try:
+            with urllib.request.urlopen(
+                f"https://api.waqi.info/map/bounds?token={AQICN_TOKEN}&networks=all&latlng={lat1},{lng1},{lat2},{lng2}",
+                timeout=30,
+            ) as f:
+                # Get AQI value for the nearest valid station
+                if (stations := json.load(f).get("data", [])) and isinstance(
+                    stations, list
+                ):
+                    stations = [
+                        s
+                        for s in stations
+                        if isinstance(s, dict)
+                        and type(s.get("lat")) in (str, int, float)
+                        and type(s.get("lon")) in (str, int, float)
+                    ]
+                    stations.sort(
+                        key=lambda s: (
+                            (float(s["lat"]) - LATITUDE) ** 2
+                            + (float(s["lon"]) - LONGITUDE) ** 2
+                        )  # Pythagorean distance approximation.
+                    )
+                if any(
+                    (station := s)
+                    for s in stations
+                    if isinstance(s.get("aqi"), (str, int, float))
+                    and int(s.get("aqi", -1)) >= 0
+                ):
+                    station_name = station.get("station", {}).get("name", "UNKNOWN")
+                    aqi_value = int(station.get("aqi", -1))
+                    break
+        except Exception as e:  # noqa: BLE001
+            logger.error(
+                "Failed to fetch or process AQI data for search radius %d km | %s",
+                search_radius_km,
+                e,
+            )
+        search_radius_km += 10
 
     if aqi_value >= 0:
-        logger.info("Current Air Quality Index (AQI): %d", aqi_value)
+        logger.info(
+            "Current Air Quality Index (AQI): %d | Station Name: %s",
+            aqi_value,
+            station_name,
+        )
 
     if aqi_value == 0:
         aqi_value = -1  # Pyserial's auto-reset on connect sends 0 to Arduino. So for AQI 0, we send -1 instead to Arduino.

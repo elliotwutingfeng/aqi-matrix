@@ -4,3 +4,6 @@ AQICN_TOKEN = "pandapandapandapandapandapandapandapanda"
 # Find your current location's `LATITUDE` and `LONGITUDE` in decimal degrees using https://gps-coordinates.net.
 LATITUDE = 1.289154
 LONGITUDE = 103.850486
+
+# Maximum search radius in kilometers for nearby AQI stations.
+MAX_SEARCH_RADIUS_KM = 100
