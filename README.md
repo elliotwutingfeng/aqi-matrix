@@ -41,7 +41,7 @@ Displays the current AQI value and changes color based on the current Air Qualit
     sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install python3-serial && sudo apt-get autoremove -y
     ```
 
-1. Copy `config-dev.toml` to `config.toml` and update the `AQICN_TOKEN`, `LATITUDE`, `LONGITUDE`, and `NUM_LEDS` in `config.toml`.
+1. Copy `config-dev.toml` to `config.toml` and update the `AQICN_TOKEN`, `LATITUDE`, and `LONGITUDE` in `config.toml`.
 
     ```bash
     cp --update=none ~/aqi-matrix/config-dev.toml ~/aqi-matrix/config.toml

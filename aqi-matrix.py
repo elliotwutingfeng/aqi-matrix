@@ -30,7 +30,7 @@ def main():
     AQICN_TOKEN = config.get("AQICN_TOKEN")
     LATITUDE = config.get("LATITUDE")
     LONGITUDE = config.get("LONGITUDE")
-    MAX_SEARCH_RADIUS_KM = config.get("MAX_SEARCH_RADIUS_KM")
+    MAX_SEARCH_RADIUS_KM = math.ceil(config.get("MAX_SEARCH_RADIUS_KM") / 10) * 10
 
     if not (
         AQICN_TOKEN
@@ -47,8 +47,7 @@ def main():
 
     station_name = "UNKNOWN"
     aqi_value = -2
-    search_radius_km = 10
-    while search_radius_km < MAX_SEARCH_RADIUS_KM:
+    for search_radius_km in range(10, MAX_SEARCH_RADIUS_KM + 1, 10):
         # lat1 lng1 is northwest corner
         # lat2 lng2 is southeast corner
 
@@ -99,7 +98,6 @@ def main():
                 search_radius_km,
                 e,
             )
-        search_radius_km += 10
 
     if aqi_value >= 0:
         logger.info(
