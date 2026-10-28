@@ -1,8 +1,8 @@
 """Convert .c file exported from Piskel from ARGB8888 to RGB565. See <https://www.piskelapp.com>."""
 
+import os
 import pathlib
 import re
-import os
 
 
 def argb8888_to_rgb565(color):

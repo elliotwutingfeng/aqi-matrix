@@ -5,11 +5,13 @@ import logging
 import math
 import pathlib
 import time
+import tomllib
 import urllib.request
 
 import serial
-import tomllib
 from serial.tools import list_ports
+
+from coordinates import Coordinates
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -78,10 +80,12 @@ def main():
                         and type(s.get("lon")) in (str, int, float)
                     ]
                     stations.sort(
-                        key=lambda s: (
-                            (float(s["lat"]) - LATITUDE) ** 2
-                            + (float(s["lon"]) - LONGITUDE) ** 2
-                        )  # Pythagorean distance approximation.
+                        key=lambda s: Coordinates.haversine_distance(
+                            Coordinates(latitude=LATITUDE, longitude=LONGITUDE),
+                            Coordinates(
+                                latitude=float(s["lat"]), longitude=float(s["lon"])
+                            ),
+                        ),  # Haversine distance approximation.
                     )
                 if any(
                     (station := s)
